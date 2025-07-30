@@ -1,22 +1,60 @@
+from flask import Flask, request, render_template_string
+
+app = Flask(__name__)
+
+# Liste des tickets gagnants (à adapter)
+gagnants = {"TICKET00234", "TICKET04567", "TICKET07890", "TICKET09999", "TICKET10000"}
+
+html_template = """
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <title>Bienvenue</title>
-  <style>
-    body {
-      text-align: center;
-      margin-top: 100px;
-      font-family: Arial;
-    }
-    h1 {
-      font-size: 60px;
-      color: green;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <title>Vérification Ticket</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding-top: 100px;
+            background-color: #f9f9f9;
+        }
+        .croix {
+            font-size: 150px;
+            color: red;
+            font-weight: bold;
+        }
+        .message {
+            font-size: 20px;
+            margin-top: 20px;
+            color: #333;
+        }
+        .retry {
+            margin-top: 40px;
+            font-style: italic;
+            color: #666;
+        }
+    </style>
 </head>
 <body>
-  <h1>Bienvenue sur mon site 🎉</h1>
-  <p>Tu es arrivé ici grâce à un QR code !</p>
+    {% if gagne %}
+        <div style="font-size:150px; color:green;">&#10004;</div> <!-- grosse coche verte -->
+        <div class="message">Félicitations, vous avez gagné !</div>
+    {% else %}
+        <div class="croix">&#10060;</div> <!-- grosse croix rouge -->
+        <div class="message">Désolé, ce ticket n’est pas gagnant.</div>
+        <div class="retry">Merci d’essayer avec un autre ticket !</div>
+    {% endif %}
 </body>
 </html>
+"""
+
+@app.route('/verifier')
+def verifier():
+    ticket = request.args.get('ticket', '').upper()
+    if ticket in gagnants:
+        return render_template_string(html_template, gagne=True)
+    else:
+        return render_template_string(html_template, gagne=False)
+
+if __name__ == '__main__':
+    app.run(debug=True)
